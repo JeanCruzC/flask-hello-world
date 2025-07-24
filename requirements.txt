@@ -1,9 +1,8 @@
 Flask==3.0.3
-pandas
-numpy
-matplotlib
-seaborn
-streamlit
-pyworkforce
-psutil
+pandas==2.3.1
+numpy==2.3.2
+matplotlib==3.8.4
+seaborn==0.13.2
+pyworkforce==0.5.1
+psutil==5.9.8
 
