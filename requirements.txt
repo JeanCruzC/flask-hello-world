@@ -1,1 +1,9 @@
 Flask==3.0.3
+pandas
+numpy
+matplotlib
+seaborn
+streamlit
+pyworkforce
+psutil
+

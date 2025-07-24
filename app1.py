@@ -1,5 +1,14 @@
 # -*- coding: utf-8 -*-
-import streamlit as st
+try:
+    import streamlit as st
+except Exception:
+    class _Dummy:
+        def __getattr__(self, name):
+            def _no_op(*args, **kwargs):
+                return None
+            return _no_op
+
+    st = _Dummy()
 import pandas as pd
 import numpy as np
 import math
@@ -16,6 +25,7 @@ import os
 import re
 import gc
 import psutil
+import base64
 
 from typing import Dict, List, Iterable, Union
 
@@ -3188,4 +3198,61 @@ def analyze_coverage_precision(assignments, shifts_coverage, demand_matrix):
 # ——————————————————————————————————————————————————————————————
 st.markdown("---")
 st.markdown("**Generador de Turnos v6.2** - Sistema de optimización con aprendizaje adaptativo")
+
+
+def fig_to_base64(fig) -> str:
+    """Convert a Matplotlib figure to a base64 encoded PNG."""
+    buf = BytesIO()
+    fig.savefig(buf, format="png", bbox_inches="tight")
+    buf.seek(0)
+    return base64.b64encode(buf.read()).decode("utf-8")
+
+
+def analyze_file(file_stream) -> dict | None:
+    """Run the optimization using an uploaded Excel file.
+
+    Returns a dictionary with results suitable for HTML rendering or ``None`` if
+    no solution could be generated.
+    """
+    df = pd.read_excel(file_stream)
+
+    dias_semana = [
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado",
+        "Domingo",
+    ]
+
+    required_resources: list[list[int]] = [[] for _ in range(7)]
+    for _, row in df.iterrows():
+        d = int(row["Día"]) - 1
+        required_resources[d].append(
+            int(row["Suma de Agentes Requeridos Erlang"])
+        )
+
+    demand_matrix = np.array(required_resources, dtype=float)
+
+    shifts_coverage: dict[str, np.ndarray] = {}
+    for batch in generate_shifts_coverage_optimized(demand_matrix):
+        shifts_coverage.update(batch)
+
+    if not shifts_coverage:
+        return None
+
+    assignments = solve_in_chunks_optimized(shifts_coverage, demand_matrix)
+    if not assignments:
+        return None
+
+    results = analyze_results(assignments, shifts_coverage, demand_matrix)
+    demand_img = fig_to_base64(
+        create_heatmap(demand_matrix, "Demanda por Hora y Día", "Reds")
+    )
+    cov_img = fig_to_base64(
+        create_heatmap(results["total_coverage"], "Cobertura por Hora y Día", "Blues")
+    )
+    results.update({"heatmap_demand": demand_img, "heatmap_coverage": cov_img})
+    return results
 
