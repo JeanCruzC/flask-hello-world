@@ -34,7 +34,7 @@ def home():
             result = app1.analyze_file(file.stream)
     return render_template_string(UPLOAD_FORM, result=result)
 
+
 @app.route('/about')
 def about():
     return 'About'
-
