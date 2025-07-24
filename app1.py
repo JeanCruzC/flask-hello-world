@@ -3216,15 +3216,6 @@ def analyze_file(file_stream) -> dict | None:
     """
     df = pd.read_excel(file_stream)
 
-    dias_semana = [
-        "Lunes",
-        "Martes",
-        "Miércoles",
-        "Jueves",
-        "Viernes",
-        "Sábado",
-        "Domingo",
-    ]
 
     required_resources: list[list[int]] = [[] for _ in range(7)]
     for _, row in df.iterrows():
