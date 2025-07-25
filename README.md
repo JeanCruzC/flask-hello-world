@@ -58,3 +58,16 @@ After uploading a valid Excel file the page shows:
 
 Use these metrics to evaluate whether the generated schedule meets your
 requirements.
+
+## Deploying on Netlify
+
+Install the Netlify CLI and run the project locally:
+
+```bash
+npm install -g netlify-cli
+netlify dev
+```
+
+Deploy with `netlify deploy` or use the Netlify dashboard.
+
+The `vercel.json` configuration is still present if you prefer deploying to Vercel.
